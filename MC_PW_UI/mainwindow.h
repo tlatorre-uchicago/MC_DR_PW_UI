@@ -17,9 +17,16 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+    void turnoff();
+    void ledon();
+
 private:
     Ui::MainWindow *ui;
     socket_com *com;
+
+signals:
+    void disconnect_socket();
 
 };
 #endif // MAINWINDOW_H
