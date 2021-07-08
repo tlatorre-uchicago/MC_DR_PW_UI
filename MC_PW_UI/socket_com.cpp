@@ -131,18 +131,21 @@ void socket_com::vc1(double val){
 void socket_com::vc2(double val){
     Data_todev.append("Vc_set=2_");
     Data_todev.append(QString::number(val).toUtf8());
+    sendDataToClient(Data_todev);
    //std::cout<<Data_onoff.toStdString()<<std::endl;
     Data_todev.clear();
 }
 void socket_com::vc3(double val){
     Data_todev.append("Vc_set=3_");
     Data_todev.append(QString::number(val).toUtf8());
+    sendDataToClient(Data_todev);
    //std::cout<<Data_onoff.toStdString()<<std::endl;
     Data_todev.clear();
 }
 void socket_com::vc4(double val){
     Data_todev.append("Vc_set=4_");
     Data_todev.append(QString::number(val).toUtf8());
+    sendDataToClient(Data_todev);
    //std::cout<<Data_onoff.toStdString()<<std::endl;
     Data_todev.clear();
 }
