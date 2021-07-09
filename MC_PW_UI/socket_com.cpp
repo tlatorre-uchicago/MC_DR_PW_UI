@@ -6,8 +6,9 @@
 
 }*/
 
-socket_com::socket_com(){
-    //connect_socket();
+socket_com::socket_com()
+{
+    udpSocket = NULL;
 }
 
 void socket_com::sendDataToClient(QByteArray data){
@@ -33,6 +34,7 @@ void socket_com::disconnect_socket(){
     delete hostadress;
     delete remoteadress;
     delete udpSocket;
+    udpSocket = NULL;
 }
 
 void socket_com::readPendingDatagrams()
@@ -92,123 +94,45 @@ std::cout<<(datag.data().toStdString())<<std::endl;
 
 }
 
-void socket_com::ch1(int state){
-    if(state)Data_onoff.append("ch1_on");
-    else Data_onoff.append("ch1_off");
-    sendDataToClient(Data_onoff);
-   // std::cout<<Data_onoff.toStdString()<<std::endl;
-    Data_onoff.clear();
-}
-void socket_com::ch2(int state){
-    if(state)Data_onoff.append("ch2_on");
-    else Data_onoff.append("ch2_off");
-    sendDataToClient(Data_onoff);
-   // std::cout<<Data_onoff.toStdString()<<std::endl;
-    Data_onoff.clear();
-}
-void socket_com::ch3(int state){
-    if(state)Data_onoff.append("ch3_on");
-    else Data_onoff.append("ch3_off");
-    sendDataToClient(Data_onoff);
-   // std::cout<<Data_onoff.toStdString()<<std::endl;
-    Data_onoff.clear();
-}
-void socket_com::ch4(int state){
-    if(state)Data_onoff.append("ch4_on");
-    else Data_onoff.append("ch4_off");
-    sendDataToClient(Data_onoff);
-   // std::cout<<Data_onoff.toStdString()<<std::endl;
-    Data_onoff.clear();
+void socket_com::enable_channel(int channel, int state)
+{
+    char command[256];
+
+    if (!udpSocket) return;
+
+    if (state)
+        sprintf(command,"ch%i_on", channel);
+    else
+        sprintf(command,"ch%i_off", channel);
+    sendDataToClient(QByteArray(command));
 }
 
-void socket_com::vc1(double val){
-    Data_todev.append("Vc_set=1_");
-    Data_todev.append(QString::number(val).toUtf8());
-    sendDataToClient(Data_todev);
-   //std::cout<<Data_todev.toStdString()<<std::endl;
-    Data_todev.clear();
-}
-void socket_com::vc2(double val){
-    Data_todev.append("Vc_set=2_");
-    Data_todev.append(QString::number(val).toUtf8());
-    sendDataToClient(Data_todev);
-   //std::cout<<Data_onoff.toStdString()<<std::endl;
-    Data_todev.clear();
-}
-void socket_com::vc3(double val){
-    Data_todev.append("Vc_set=3_");
-    Data_todev.append(QString::number(val).toUtf8());
-    sendDataToClient(Data_todev);
-   //std::cout<<Data_onoff.toStdString()<<std::endl;
-    Data_todev.clear();
-}
-void socket_com::vc4(double val){
-    Data_todev.append("Vc_set=4_");
-    Data_todev.append(QString::number(val).toUtf8());
-    sendDataToClient(Data_todev);
-   //std::cout<<Data_onoff.toStdString()<<std::endl;
-    Data_todev.clear();
+void socket_com::change_vc(int channel, double value)
+{
+    char command[256];
+
+    if (!udpSocket) return;
+
+    sprintf(command,"Vc_set=%i_%.2f", channel, value);
+    sendDataToClient(QByteArray(command));
 }
 
+void socket_com::change_vcx(int channel, double value)
+{
+    char command[256];
 
-void socket_com::vcx1(double val){
-    Data_todev.append("Vcx_set=1_");
-    Data_todev.append(QString::number(val).toUtf8());
-    sendDataToClient(Data_todev);
-   //std::cout<<Data_todev.toStdString()<<std::endl;
-    Data_todev.clear();
-}
+    if (!udpSocket) return;
 
-void socket_com::vcx2(double val){
-    Data_todev.append("Vcx_set=2_");
-    Data_todev.append(QString::number(val).toUtf8());
-    sendDataToClient(Data_todev);
-   //std::cout<<Data_todev.toStdString()<<std::endl;
-    Data_todev.clear();
+    sprintf(command,"Vcx_set=%i_%.2f", channel, value);
+    sendDataToClient(QByteArray(command));
 }
 
-void socket_com::vcx3(double val){
-    Data_todev.append("Vcx_set=3_");
-    Data_todev.append(QString::number(val).toUtf8());
-    sendDataToClient(Data_todev);
-   //std::cout<<Data_todev.toStdString()<<std::endl;
-    Data_todev.clear();
-}
+void socket_com::change_vgain(int channel, double value)
+{
+    char command[256];
 
-void socket_com::vcx4(double val){
-    Data_todev.append("Vcx_set=4_");
-    Data_todev.append(QString::number(val).toUtf8());
-    sendDataToClient(Data_todev);
-   //std::cout<<Data_todev.toStdString()<<std::endl;
-    Data_todev.clear();
-}
+    if (!udpSocket) return;
 
-
-void socket_com::vgain1(double val){
-    Data_todev.append("Vgain_set=1_");
-    Data_todev.append(QString::number(val).toUtf8());
-    sendDataToClient(Data_todev);
-   //std::cout<<Data_todev.toStdString()<<std::endl;
-    Data_todev.clear();
-}
-void socket_com::vgain2(double val){
-    Data_todev.append("Vgain_set=2_");
-    Data_todev.append(QString::number(val).toUtf8());
-    sendDataToClient(Data_todev);
-   //std::cout<<Data_todev.toStdString()<<std::endl;
-    Data_todev.clear();
-}
-void socket_com::vgain3(double val){
-    Data_todev.append("Vgain_set=3_");
-    Data_todev.append(QString::number(val).toUtf8());
-    sendDataToClient(Data_todev);
-   //std::cout<<Data_todev.toStdString()<<std::endl;
-    Data_todev.clear();
-}
-void socket_com::vgain4(double val){
-    Data_todev.append("Vgain_set=4_");
-    Data_todev.append(QString::number(val).toUtf8());
-    sendDataToClient(Data_todev);
-   //std::cout<<Data_todev.toStdString()<<std::endl;
-    Data_todev.clear();
+    sprintf(command,"Vgain_set=%i_%.2f", channel, value);
+    sendDataToClient(QByteArray(command));
 }
