@@ -1,5 +1,60 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+/* getline() replacement for windows. From https://stackoverflow.com/questions/735126/are-there-alternate-implementations-of-gnu-getline-interface/735472#735472. */
+size_t getline(char **lineptr, size_t *n, FILE *stream) {
+    char *bufptr = NULL;
+    char *p = bufptr;
+    size_t size;
+    int c;
+
+    if (lineptr == NULL) {
+        return -1;
+    }
+    if (stream == NULL) {
+        return -1;
+    }
+    if (n == NULL) {
+        return -1;
+    }
+    bufptr = *lineptr;
+    size = *n;
+
+    c = fgetc(stream);
+    if (c == EOF) {
+        return -1;
+    }
+    if (bufptr == NULL) {
+        bufptr = malloc(128);
+        if (bufptr == NULL) {
+            return -1;
+        }
+        size = 128;
+    }
+    p = bufptr;
+    while(c != EOF) {
+        if ((p - bufptr) > (size - 1)) {
+            size = size + 128;
+            bufptr = realloc(bufptr, size);
+            if (bufptr == NULL) {
+                return -1;
+            }
+        }
+        *p++ = c;
+        if (c == '\n') {
+            break;
+        }
+        c = fgetc(stream);
+    }
+
+    *p++ = '\0';
+    *lineptr = bufptr;
+    *n = size;
+
+    return p - bufptr - 1;
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -9,6 +64,8 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle(QString("INQNET - Macom power distribution"));
     com = new socket_com();
     ui->onoff->setState(false);
+
+    self->loadFromFile("settings.txt");
 
     this->last_channel_state[0] = ui->CH1_on->isChecked();
     this->last_channel_state[1] = ui->CH2_on->isChecked();
@@ -101,6 +158,137 @@ MainWindow::MainWindow(QWidget *parent)
 
 }
 
+int MainWindow::saveToFile(char *filename)
+{
+    int i;
+    int channel_state[4];
+    double vc[4];
+    double vcx[4];
+    double vgain[4];
+    FILE *f;
+
+    channel_state[0] = ui->CH1_on->isChecked();
+    channel_state[1] = ui->CH2_on->isChecked();
+    channel_state[2] = ui->CH3_on->isChecked();
+    channel_state[3] = ui->CH4_on->isChecked();
+
+    vc[0] = ui->vc1->value();
+    vc[1] = ui->vc2->value();
+    vc[2] = ui->vc3->value();
+    vc[3] = ui->vc4->value();
+
+    vcx[0] = ui->vcx1->value();
+    vcx[1] = ui->vcx2->value();
+    vcx[2] = ui->vcx3->value();
+    vcx[3] = ui->vcx4->value();
+
+    vgain[0] = ui->vgain1->value();
+    vgain[1] = ui->vgain2->value();
+    vgain[2] = ui->vgain3->value();
+    vgain[3] = ui->vgain4->value();
+
+    f = fopen(filename,"w");
+
+    if (!f) {
+        fprintf(stderr, "error opening file '%s'!",filename);
+        return 1;
+    }
+
+    for (i = 0; i < 4; i++) {
+        fprintf(f,"%i\n", channel_state[i]);
+        fprintf(f,"%.2f\n", vc[i]);
+        fprintf(f,"%.2f\n", vcx[i]);
+        fprintf(f,"%.2f\n", vgain[i]);
+    }
+
+    fclose(f);
+
+    return 0;
+}
+
+int MainWindow::loadFromFile(char *filename)
+{
+    int i;
+    int channel_state[4];
+    double vc[4];
+    double vcx[4];
+    double vgain[4];
+    FILE *f;
+    char **lineptr;
+
+    channel_state[0] = ui->CH1_on->isChecked();
+    channel_state[1] = ui->CH2_on->isChecked();
+    channel_state[2] = ui->CH3_on->isChecked();
+    channel_state[3] = ui->CH4_on->isChecked();
+
+    vc[0] = ui->vc1->value();
+    vc[1] = ui->vc2->value();
+    vc[2] = ui->vc3->value();
+    vc[3] = ui->vc4->value();
+
+    vcx[0] = ui->vcx1->value();
+    vcx[1] = ui->vcx2->value();
+    vcx[2] = ui->vcx3->value();
+    vcx[3] = ui->vcx4->value();
+
+    vgain[0] = ui->vgain1->value();
+    vgain[1] = ui->vgain2->value();
+    vgain[2] = ui->vgain3->value();
+    vgain[3] = ui->vgain4->value();
+
+    f = fopen(filename,"r");
+
+    if (!f) {
+        fprintf(stderr, "error opening file settings.txt!");
+        return 1;
+    }
+
+    lineptr = malloc(256);
+    size_t n = 256;
+    for (i = 0; i < 4; i++) {
+        if (getline(lineptr, &n, f) == -1) goto err;
+        channel_state[i] = atoi(lineptr);
+        if (getline(lineptr, &n, f) == -1) goto err;
+        vc[i] = atof(lineptr);
+        if (getline(lineptr, &n, f) == -1) goto err;
+        vcx[i] = atof(lineptr);
+        if (getline(lineptr, &n, f) == -1) goto err;
+        vgain[i] = atof(lineptr);
+    }
+    free(lineptr);
+
+    fclose(f);
+
+    this->ui->CH1_on->setCheckState(channel_state[0]);
+    this->ui->CH2_on->setCheckState(channel_state[1]);
+    this->ui->CH3_on->setCheckState(channel_state[2]);
+    this->ui->CH4_on->setCheckState(channel_state[3]);
+
+    this->ui->vc1->setValue(vc[0]);
+    this->ui->vc2->setValue(vc[1]);
+    this->ui->vc3->setValue(vc[2]);
+    this->ui->vc4->setValue(vc[3]);
+
+    this->ui->vcx1->setValue(vcx[0]);
+    this->ui->vcx2->setValue(vcx[1]);
+    this->ui->vcx3->setValue(vcx[2]);
+    this->ui->vcx4->setValue(vcx[3]);
+
+    this->ui->vgain1->setValue(vgain[0]);
+    this->ui->vgain2->setValue(vgain[1]);
+    this->ui->vgain3->setValue(vgain[2]);
+    this->ui->vgain4->setValue(vgain[3]);
+
+    return 0;
+
+err:
+    free(lineptr);
+
+    fclose(f);
+
+    return -1;
+}
+
 void MainWindow::updateUI(void)
 {
     int i;
@@ -167,6 +355,7 @@ void MainWindow::ledon(){
 
 MainWindow::~MainWindow()
 {
+    self->SaveToFile("settings.txt");
     delete ui;
 }
 

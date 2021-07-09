@@ -16,6 +16,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    int loadFromFile(char *filename);
+    int saveToFile(char *filename);
 
 public slots:
     void turnoff();
