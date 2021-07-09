@@ -354,22 +354,22 @@ void MainWindow::updateUI(void)
 
     for (i = 0; i < 4; i++) {
         if (channel_state[i] != this->last_channel_state[i]) {
-            this->com->enable_channel(i,channel_state[i]);
+            this->com->enable_channel(i+1,channel_state[i]);
             last_channel_state[i] = channel_state[i];
         }
 
         if (vc[i] != this->last_vc[i]) {
-            this->com->change_vc(i,vc[i]);
+            this->com->change_vc(i+1,vc[i]);
             last_vc[i] = vc[i];
         }
 
         if (vcx[i] != this->last_vcx[i]) {
-            this->com->change_vcx(i,vcx[i]);
+            this->com->change_vcx(i+1,vcx[i]);
             last_vcx[i] = vcx[i];
         }
 
         if (vgain[i] != this->last_vgain[i]) {
-            this->com->change_vgain(i,vgain[i]);
+            this->com->change_vgain(i+1,vgain[i]);
             last_vgain[i] = vgain[i];
         }
     }
