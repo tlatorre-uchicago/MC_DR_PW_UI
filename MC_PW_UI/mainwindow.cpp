@@ -3,6 +3,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void trimmed(char *ptr)
+{
+    while((ptr != NULL) && (*ptr != '\n'))
+    {
+        ++ptr;
+    }
+    *ptr = '\0';
+}
+
 #ifndef __unix__
 /* getline() replacement for windows. From https://stackoverflow.com/questions/735126/are-there-alternate-implementations-of-gnu-getline-interface/735472#735472. */
 size_t getline(char **lineptr, size_t *n, FILE *stream) {
@@ -272,11 +281,11 @@ int MainWindow::loadFromFile(const char *filename)
     line = (char *) malloc(256);
     size_t n = 256;
     if (getline(&line, &n, f) == -1) goto err;
-    ui->ip->setText(line);
+    ui->ip->setText(trimmed(line));
     if (getline(&line, &n, f) == -1) goto err;
-    ui->local_port->setText(line);
+    ui->local_port->setText(trimmed(line));
     if (getline(&line, &n, f) == -1) goto err;
-    ui->remote_port->setText(line);
+    ui->remote_port->setText(trimmed(line));
     for (i = 0; i < 4; i++) {
         if (getline(&line, &n, f) == -1) goto err;
         channel_state[i] = atoi(line);
