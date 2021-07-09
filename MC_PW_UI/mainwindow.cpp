@@ -282,13 +282,16 @@ int MainWindow::loadFromFile(const char *filename)
     size_t n = 256;
     if (getline(&line, &n, f) == -1) goto err;
     trim(line);
-    ui->ip->setText(line);
+    ui->ip->setText(QString::fromLocal8Bit(line));
+    com->set_network_ip(ui->ip->text());
     if (getline(&line, &n, f) == -1) goto err;
     trim(line);
-    ui->local_port->setText(line);
+    ui->local_port->setText(QString::fromLocal8Bit(line));
+    com->set_network_local_port_(ui->local_port->text());
     if (getline(&line, &n, f) == -1) goto err;
     trim(line);
-    ui->remote_port->setText(line);
+    ui->remote_port->setText(QString::fromLocal8Bit(line));
+    com->set_network_remote_port_(ui->remote_port->text());
     for (i = 0; i < 4; i++) {
         if (getline(&line, &n, f) == -1) goto err;
         channel_state[i] = atoi(line);
