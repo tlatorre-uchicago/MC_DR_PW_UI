@@ -281,13 +281,13 @@ int MainWindow::loadFromFile(const char *filename)
     line = (char *) malloc(256);
     size_t n = 256;
     if (getline(&line, &n, f) == -1) goto err;
-    trime(line);
+    trim(line);
     ui->ip->setText(line);
     if (getline(&line, &n, f) == -1) goto err;
-    trime(line);
+    trim(line);
     ui->local_port->setText(line);
     if (getline(&line, &n, f) == -1) goto err;
-    trime(line);
+    trim(line);
     ui->remote_port->setText(line);
     for (i = 0; i < 4; i++) {
         if (getline(&line, &n, f) == -1) goto err;
