@@ -20,10 +20,15 @@ public:
 public slots:
     void turnoff();
     void ledon();
+    void updateUI();
 
 private:
     Ui::MainWindow *ui;
     socket_com *com;
+    int last_channel_state[4];
+    double last_vc[4];
+    double last_vcx[4];
+    double last_vgain[4];
 
 signals:
     void disconnect_socket();

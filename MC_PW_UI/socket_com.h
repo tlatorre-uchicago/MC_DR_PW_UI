@@ -18,7 +18,10 @@ class socket_com : public QObject
 public:
     //void run();
     explicit socket_com();
-
+    void enable_channel(int channel, int state);
+    void change_vc(int channel, double value);
+    void change_vcx(int channel, double value);
+    void change_vgain(int channel, double value);
 
     void readPendingDatagrams(); 
     void processTheDatagram(QNetworkDatagram datag);
@@ -75,23 +78,6 @@ public slots:
     void connect_socket();
     void disconnect_socket();
     void sendDataToClient(QByteArray data);
-    void ch1(int state);
-    void ch2(int state);
-    void ch3(int state);
-    void ch4(int state);
-
-    void vc1(double val);
-    void vc2(double val);
-    void vc3(double val);
-    void vc4(double val);
-    void vcx1(double val);
-    void vcx2(double val);
-    void vcx3(double val);
-    void vcx4(double val);
-    void vgain1(double val);
-    void vgain2(double val);
-    void vgain3(double val);
-    void vgain4(double val);
 
     void set_network_ip(QString ip){remote_ip=ip;}
     void set_network_local_port_(QString port){local_port_=port.toInt();}
